@@ -95,7 +95,6 @@ bool q_insert_tail(queue_t *q, char *s)
         return false;
     }
     strncpy(newh->value, s, len);
-    // newh->value[len] = '\0';
     /* Don't forget to allocate space for the string and copy it */
     /* What if either call to malloc returns NULL? */
 
@@ -123,13 +122,16 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     list_ele_t *head = q->head;
     q->head = q->head->next;
     q->size--;
-    if (sp) {
-        // sp[bufsize-1] = '\0';
-        if (head->value) {
-            strncpy(sp, head->value, bufsize - 1);
-            free(head->value);
+    if (head->value) {
+        if (sp) {
+            size_t len = bufsize > strlen(head->value) ? strlen(head->value)
+                                                       : bufsize - 1;
+            strncpy(sp, head->value, len);
+            sp[len] = '\0';
         }
+        free(head->value);
     }
+
     free(head);
     return true;
 }
@@ -159,6 +161,7 @@ void q_reverse(queue_t *q)
         return;
 
     list_ele_t *cursor = NULL;
+    q->tail = q->head;
     while (q->head) {
         list_ele_t *next = q->head->next;
         q->head->next = cursor;
@@ -233,6 +236,4 @@ void q_sort(queue_t *q)
 
     while (q->tail->next)
         q->tail = q->tail->next;
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
 }
